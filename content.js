@@ -130,7 +130,6 @@ function insertButton() {
       button.appendChild(text);
 
       targetElement.parentElement.appendChild(button); // Add button as sibling
-      console.log("Button added!");
 
       let checkboxes = document.querySelectorAll("input[type='checkbox']");
 
@@ -170,8 +169,6 @@ function insertButton() {
 
       // Add click event listener to the button
       button.addEventListener("click", () => {
-        console.log("Button clicked!");
-
         // Initialize an array to store the content to append to the new tab
         let contentToAppend = "";
 
@@ -203,18 +200,26 @@ function insertButton() {
           }
         });
 
+        // Check if no content was appended (no checkbox selected)
+        if (!contentToAppend) {
+          alert("Please select at least one checkbox!");
+          return; // Exit the function to prevent opening a new tab
+        }
+
         // Open a single new tab and append all the content
         if (contentToAppend) {
           let newTab = window.open("", "_blank");
           newTab.document.write("<html><head><title>Content</title>");
-
-          // Add the CSS for font-family: Segoe UI
           newTab.document.write(
-            '<style>body { font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif; }</style>'
+            '<style>body { font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif; font-size: 14px !important; margin: 0; padding: 20px; width: 100%; }' +
+              "</style>"
           );
 
           newTab.document.write("</head><body>");
+          // Create a content wrapper to contain the content inside the viewport
+          newTab.document.write('<div class="content-wrapper">');
           newTab.document.write(contentToAppend); // Append all the content
+          newTab.document.write("</div>");
           newTab.document.write("</body></html>");
           newTab.document.close(); // Close the document after writing
 
