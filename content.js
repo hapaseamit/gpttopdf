@@ -15,7 +15,6 @@ function waitForArticles(timeout = 5000) {
     check();
   });
 }
-
 function insertCheckboxes() {
   waitForArticles()
     .then((articles) => {
@@ -23,36 +22,36 @@ function insertCheckboxes() {
         if ((index + 1) % 2 === 0) {
           // Even-numbered responses only
 
-          // Use the specified XPath element for the target
-          let targetElement = document.evaluate(
-            "/html/body/div[1]/div/div[1]/div[2]/main/div[1]/div[1]/div/div/div/div/article[" +
-              (index + 1) +
-              "]/div/div/div/div/div[2]/div/div",
-            document,
-            null,
-            XPathResult.FIRST_ORDERED_NODE_TYPE,
-            null
-          ).singleNodeValue;
+          // Find button with aria-label="Read aloud"
+          let readAloudButton = article.querySelector(
+            'button[aria-label="Read aloud"]'
+          );
 
-          if (targetElement) {
-            let existingCheckbox = targetElement.querySelector(
-              "input[type='checkbox']"
-            );
+          if (readAloudButton) {
+            // Get the second parent of the button
+            let targetElement = readAloudButton.parentElement?.parentElement;
 
-            if (!existingCheckbox) {
-              // Create the span and checkbox
-              let checkboxWrapper = document.createElement("span");
-              checkboxWrapper.setAttribute("data-state", "closed");
+            if (targetElement) {
+              // Check if the target element contains the checkbox already
+              let existingCheckbox = targetElement.querySelector(
+                "input[type='checkbox']"
+              );
 
-              let checkbox = document.createElement("input");
-              checkbox.type = "checkbox";
-              checkbox.style.marginBottom = "5px"; // Add spacing
+              if (!existingCheckbox) {
+                // Create the span and checkbox
+                let checkboxWrapper = document.createElement("span");
+                checkboxWrapper.setAttribute("data-state", "closed");
 
-              // Append checkbox to the span
-              checkboxWrapper.appendChild(checkbox);
+                let checkbox = document.createElement("input");
+                checkbox.type = "checkbox";
+                checkbox.style.marginBottom = "5px"; // Add spacing
 
-              // Prepend the checkbox to the target element
-              targetElement.prepend(checkboxWrapper);
+                // Append checkbox to the span
+                checkboxWrapper.appendChild(checkbox);
+
+                // Prepend the checkbox to the target element
+                targetElement.prepend(checkboxWrapper);
+              }
             }
           }
         }
@@ -146,9 +145,14 @@ function insertButton() {
             }
 
             if (parent) {
-              // Add green border if checkbox is checked
-
-              parent.firstElementChild.style.border = "1px solid darkgreen";
+              // Search for the child with the class 'flex max-w-full flex-col flex-grow'
+              let targetChild = parent.querySelector(
+                ".flex.max-w-full.flex-col.flex-grow"
+              );
+              if (targetChild) {
+                // Add green border to the target child if checkbox is checked
+                targetChild.style.border = "1px solid darkgreen";
+              }
 
               // Hide all matching elements
               let notes = parent.querySelectorAll(
@@ -182,8 +186,14 @@ function insertButton() {
             }
 
             if (parent) {
-              // Remove green border
-              parent.firstElementChild.style.border = "";
+              // Search for the child with the class 'flex max-w-full flex-col flex-grow'
+              let targetChild = parent.querySelector(
+                ".flex.max-w-full.flex-col.flex-grow"
+              );
+              if (targetChild) {
+                // Add green border to the target child if checkbox is checked
+                targetChild.style.border = "";
+              }
             }
 
             // Toggle visibility of all target elements
@@ -230,15 +240,14 @@ function insertButton() {
             }
 
             if (parent) {
-              // Now target the first child of the 5th parent
-              let firstChild = parent.firstElementChild;
-              if (firstChild) {
+              // Search for the child with the class 'flex max-w-full flex-col flex-grow'
+              let targetChild = parent.querySelector(
+                ".flex.max-w-full.flex-col.flex-grow"
+              );
+
+              if (targetChild) {
                 // Get the first child itself as the content
-                let lastDiv = firstChild; // Directly target the firstChild itself
-                if (lastDiv) {
-                  // Append the content to the contentToAppend string
-                  contentToAppend += lastDiv.innerHTML + "<hr>"; // Preserve the HTML structure
-                }
+                contentToAppend += targetChild.innerHTML + "<hr>"; // Preserve the HTML structure
               }
             }
           }
