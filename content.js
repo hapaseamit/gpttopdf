@@ -148,7 +148,29 @@ function insertButton() {
             if (parent) {
               // Add green border if checkbox is checked
 
-              parent.firstElementChild.style.border = "2px solid green";
+              parent.firstElementChild.style.border = "1px solid darkgreen";
+
+              // Hide all matching elements
+              let notes = parent.querySelectorAll(
+                ".flex.items-center.text-token-text-secondary.px-4.py-2.text-xs.font-sans.justify-between.rounded-t-md.h-9.bg-token-sidebar-surface-primary.dark\\:bg-token-main-surface-secondary.select-none"
+              );
+              notes.forEach((note) => {
+                note.style.display = "none"; // Hide each matching element
+              });
+
+              let notes2 = parent.querySelectorAll(
+                ".absolute.bottom-0.right-2.flex.h-9.items-center"
+              );
+              notes2.forEach((note2) => {
+                note2.style.display = "none"; // Hide each matching element
+              });
+              let elementsToChange = parent.querySelectorAll(
+                ".overflow-y-auto.p-4"
+              );
+              elementsToChange.forEach((element) => {
+                // Change the inner text style to italic
+                element.style.fontStyle = "italic";
+              });
             }
           } else {
             // If unchecked, remove the green border
@@ -163,10 +185,32 @@ function insertButton() {
               // Remove green border
               parent.firstElementChild.style.border = "";
             }
+
+            // Toggle visibility of all target elements
+            let notes = parent.querySelectorAll(
+              ".flex.items-center.text-token-text-secondary.px-4.py-2.text-xs.font-sans.justify-between.rounded-t-md.h-9.bg-token-sidebar-surface-primary.dark\\:bg-token-main-surface-secondary.select-none"
+            );
+            notes.forEach((note) => {
+              note.style.display = "block"; // Show each matching element
+            });
+
+            let notes2 = parent.querySelectorAll(
+              ".absolute.bottom-0.right-2.flex.h-9.items-center"
+            );
+            notes2.forEach((note2) => {
+              note2.style.display = "block"; // Show each matching element
+            });
+            // Toggle code italic
+            let elementsToChange = parent.querySelectorAll(
+              ".overflow-y-auto.p-4"
+            );
+            elementsToChange.forEach((element) => {
+              // Remove italic style
+              element.style.fontStyle = "";
+            });
           }
         });
       });
-
       // Add click event listener to the button
       button.addEventListener("click", () => {
         // Initialize an array to store the content to append to the new tab
@@ -209,10 +253,18 @@ function insertButton() {
         // Open a single new tab and append all the content
         if (contentToAppend) {
           let newTab = window.open("", "_blank");
-          newTab.document.write("<html><head><title>Content</title>");
+          newTab.document.write(
+            '<html class="light" style="color-scheme: light;"><head><title>Content</title>'
+          );
           newTab.document.write(
             '<style>body { font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif; font-size: 14px !important; margin: 0; padding: 20px; width: 100%; }' +
               "</style>"
+          );
+          newTab.document.write(
+            '<link rel="stylesheet" href="https://cdn.oaistatic.com/assets/root-lbp7d9q9.css">'
+          );
+          newTab.document.write(
+            '<link rel="stylesheet" href="https://cdn.oaistatic.com/assets/conversation-small-nranh1cg.css">'
           );
 
           newTab.document.write("</head><body>");
@@ -222,12 +274,10 @@ function insertButton() {
           newTab.document.write("</div>");
           newTab.document.write("</body></html>");
           newTab.document.close(); // Close the document after writing
-
-          // Simulate the CTRL+P print command
           newTab.print();
         }
-      });
-    }
+      }); // Closing the event listener function here
+    } // Close if (exitingButton)
   } else {
     console.log("Target element not found.");
   }
