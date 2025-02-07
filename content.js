@@ -130,98 +130,51 @@ function insertButton() {
 
       targetElement.parentElement.appendChild(button); // Add button as sibling
 
-      let checkboxes = document.querySelectorAll("input[type='checkbox']");
+      document.body.addEventListener("click", (event) => {
+        if (event.target.matches("input[type='checkbox']")) {
+          let checkbox = event.target;
+          let parent = checkbox;
 
-      checkboxes.forEach((checkbox) => {
-        // Add event listener to checkbox for click event
-        checkbox.addEventListener("click", () => {
-          if (checkbox.checked) {
-            // Traverse up to the 5th parent
-            let parent = checkbox;
-            for (let i = 0; i < 5; i++) {
-              if (parent) {
-                parent = parent.parentElement;
-              }
-            }
-
+          for (let i = 0; i < 5; i++) {
             if (parent) {
-              // Search for the child with the class 'flex max-w-full flex-col flex-grow'
-              let targetChild = parent.querySelector(
-                ".flex.max-w-full.flex-col.flex-grow"
-              );
-              if (targetChild) {
-                // Add green border to the target child if checkbox is checked
-                targetChild.style.border = "1px solid darkgreen";
-              }
-
-              // Hide all matching elements
-              let notes = parent.querySelectorAll(
-                ".flex.items-center.text-token-text-secondary.px-4.py-2.text-xs.font-sans.justify-between.rounded-t-md.h-9.bg-token-sidebar-surface-primary.dark\\:bg-token-main-surface-secondary.select-none"
-              );
-              notes.forEach((note) => {
-                note.style.display = "none"; // Hide each matching element
-              });
-
-              let notes2 = parent.querySelectorAll(
-                ".absolute.bottom-0.right-2.flex.h-9.items-center"
-              );
-              notes2.forEach((note2) => {
-                note2.style.display = "none"; // Hide each matching element
-              });
-              let elementsToChange = parent.querySelectorAll(
-                ".overflow-y-auto.p-4"
-              );
-              elementsToChange.forEach((element) => {
-                // Change the inner text style to italic
-                element.style.fontStyle = "italic";
-              });
+              parent = parent.parentElement;
             }
-          } else {
-            // If unchecked, remove the green border
-            let parent = checkbox;
-            for (let i = 0; i < 5; i++) {
-              if (parent) {
-                parent = parent.parentElement;
-              }
+          }
+
+          if (parent) {
+            let targetChild = parent.querySelector(
+              ".flex.max-w-full.flex-col.flex-grow"
+            );
+            if (targetChild) {
+              targetChild.style.border = checkbox.checked
+                ? "1px solid darkgreen"
+                : "";
             }
 
-            if (parent) {
-              // Search for the child with the class 'flex max-w-full flex-col flex-grow'
-              let targetChild = parent.querySelector(
-                ".flex.max-w-full.flex-col.flex-grow"
-              );
-              if (targetChild) {
-                // Add green border to the target child if checkbox is checked
-                targetChild.style.border = "";
-              }
-            }
-
-            // Toggle visibility of all target elements
             let notes = parent.querySelectorAll(
               ".flex.items-center.text-token-text-secondary.px-4.py-2.text-xs.font-sans.justify-between.rounded-t-md.h-9.bg-token-sidebar-surface-primary.dark\\:bg-token-main-surface-secondary.select-none"
             );
             notes.forEach((note) => {
-              note.style.display = "block"; // Show each matching element
+              note.style.display = checkbox.checked ? "none" : "block";
             });
 
             let notes2 = parent.querySelectorAll(
               ".absolute.bottom-0.right-2.flex.h-9.items-center"
             );
             notes2.forEach((note2) => {
-              note2.style.display = "block"; // Show each matching element
+              note2.style.display = checkbox.checked ? "none" : "block";
             });
-            // Toggle code italic
+
             let elementsToChange = parent.querySelectorAll(
               ".overflow-y-auto.p-4"
             );
             elementsToChange.forEach((element) => {
-              // Remove italic style
-              element.style.fontStyle = "";
+              element.style.fontStyle = checkbox.checked ? "italic" : "";
             });
           }
-        });
+        }
       });
-      // Add click event listener to the button
+
       button.addEventListener("click", () => {
         // Initialize an array to store the content to append to the new tab
         let contentToAppend = "";
@@ -246,6 +199,8 @@ function insertButton() {
               );
 
               if (targetChild) {
+                // Remove all <hr> tags from the content
+                targetChild.querySelectorAll("hr").forEach((hr) => hr.remove());
                 // Get the first child itself as the content
                 contentToAppend += targetChild.innerHTML + "<hr>"; // Preserve the HTML structure
               }
@@ -258,6 +213,37 @@ function insertButton() {
           alert("Please select at least one checkbox!");
           return; // Exit the function to prevent opening a new tab
         }
+        // Function to recursively reduce the font size by 10% for each element
+        function reduceFontSize(element) {
+          if (
+            element.nodeType === 1 &&
+            !element.hasAttribute("data-font-resized")
+          ) {
+            // Check if the node is an element node and hasn't been resized already
+            let currentFontSize = window.getComputedStyle(element).fontSize;
+            let fontSizeValue = parseFloat(currentFontSize); // Get numeric value of font size
+            let reducedFontSize = fontSizeValue * 0.97; // Reduce font size by 10%
+
+            // Set the new font size
+            element.style.fontSize = reducedFontSize + "px";
+
+            // Mark this element as resized to prevent further reductions
+            element.setAttribute("data-font-resized", "true");
+
+            // Recursively reduce font size for child elements
+            for (let child of element.children) {
+              reduceFontSize(child);
+            }
+          }
+
+          // Traverse other types of nodes (e.g., text nodes, comments, etc.)
+          for (let child of element.childNodes) {
+            if (child.nodeType !== 1) {
+              // Avoid reprocessing element nodes (already handled)
+              reduceFontSize(child);
+            }
+          }
+        }
 
         // Open a single new tab and append all the content
         if (contentToAppend) {
@@ -265,25 +251,15 @@ function insertButton() {
           newTab.document.write(
             '<html class="light" style="color-scheme: light;"><head><title>Content</title>'
           );
-          newTab.document.write(
-            '<style>body { font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif; font-size: 14px !important; margin: 0; padding: 20px; width: 100%; }' +
-              "</style>"
-          );
-          newTab.document.write(
-            '<link rel="stylesheet" href="https://cdn.oaistatic.com/assets/root-lbp7d9q9.css">'
-          );
-          newTab.document.write(
-            '<link rel="stylesheet" href="https://cdn.oaistatic.com/assets/conversation-small-nranh1cg.css">'
-          );
-
-          newTab.document.write("</head><body>");
           // Create a content wrapper to contain the content inside the viewport
           newTab.document.write('<div class="content-wrapper">');
           newTab.document.write(contentToAppend); // Append all the content
           newTab.document.write("</div>");
           newTab.document.write("</body></html>");
           newTab.document.close(); // Close the document after writing
-          newTab.print();
+          // Wait until the content is fully loaded before reducing font sizes
+          reduceFontSize(newTab.document.body); // Reduce font size of all elements
+          newTab.print(); // Print the content
         }
       }); // Closing the event listener function here
     } // Close if (exitingButton)
